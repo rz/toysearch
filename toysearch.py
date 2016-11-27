@@ -107,7 +107,7 @@ class FrequencyInvertedIndexEngine(InvertedIndexEngine):
 
 class PageRankIndexEngine(InvertedIndexEngine):
     alpha = 0.85
-    iterations = 100
+    iterations = 500
     soup_parser = 'lxml'
     adjacency_dict_path = 'adjacency_dict.pickle'
     smatrix_path = 'smatrix.pickle'
@@ -188,7 +188,7 @@ class PageRankIndexEngine(InvertedIndexEngine):
                 source_article_index = self.article_to_index(source_article)
                 target_article_index = self.article_to_index(target_article)
                 rank = outlinks.count(target_article) / len(outlinks)
-                smatrix[target_article_index][source_article_index] = rank
+                smatrix[source_article_index][target_article_index] = rank
 
         # make the matrix stochastic by replacing 0 rows with rows with 1/n's
         for i, row in enumerate(smatrix):
@@ -203,14 +203,12 @@ class PageRankIndexEngine(InvertedIndexEngine):
         print('computing pagerank, please wait...')
         t_s = datetime.now()
         dim = len(self.articles)
-        alpha_smatrix = self.alpha * self.smatrix
-        pr_vector = numpy.full((dim, 1), 1/dim)
-        # for _ in range(self.iterations):
+        telematrix = numpy.full((dim, dim), 1/dim)
+        gmatrix = self.alpha*self.smatrix + (1 - self.alpha) * telematrix
+        pr_vector = numpy.full((1, dim), 1/dim)
         for _ in range(self.iterations):
-            pr_vector = numpy.dot(alpha_smatrix, pr_vector) + ((1 - self.alpha)/dim)*pr_vector
-        norm = numpy.linalg.norm(pr_vector)
-        pr_vector = pr_vector / norm
-        self.pagerank = {article: pr_vector[self.article_to_index(article)] for article in self.articles.keys()}
+            pr_vector = numpy.dot(pr_vector, gmatrix)
+        self.pagerank = {article: pr_vector[0][self.article_to_index(article)] for article in self.articles.keys()}
         time_elapsed = datetime.now() - t_s
         print('computed pagerank in {}s'.format(time_elapsed.total_seconds()))
 
