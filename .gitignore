@@ -1,3 +1,11 @@
+# project-specific generated files
+notes
+en/
+adjacency_dict.pickle
+inverted_index.pickle
+pagerank.pickle
+smatrix.pickle
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
