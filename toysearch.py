@@ -166,7 +166,6 @@ class PageRankIndexEngine(InvertedIndexEngine):
             self.adjacency_dict[source_article] = self.get_outlinks(source_article, contents)
 
     def get_outlinks(self, article_name, article_contents):
-        # return list(set(random.sample(self.articles.keys(), random.randint(0,20)) + ['en/articles/b/r/a/Brazil.html']))
         html_parse = bs4.BeautifulSoup(article_contents, self.soup_parser)
 
         href_filter = lambda u: u is not None and u.startswith('../../../../articles/')
